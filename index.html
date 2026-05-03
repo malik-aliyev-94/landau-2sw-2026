@@ -306,6 +306,7 @@
       justify-content: center;
       background: rgba(0,0,0,.32);
       font-size: 2.6rem;
+      color: #fff;
       pointer-events: none;
     }
     .g-caption {
@@ -803,6 +804,8 @@ const GALLERY_ITEMS = [
     if (item.type === 'video') {
       el.innerHTML = `<video src="${item.src}" muted playsinline preload="metadata" style="pointer-events:none"></video>
         <div class="g-play">▶</div>${cap}`;
+      const vid = el.querySelector('video');
+      vid.addEventListener('loadedmetadata', () => { vid.currentTime = 0.001; });
     } else {
       el.innerHTML = `<img src="${item.src}" alt="${item.caption || ''}" loading="lazy">${cap}`;
     }
