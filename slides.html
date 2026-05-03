@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Little Red Riding Hood</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; overflow-x: hidden; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #111;
+    }
+
+    /* ╔══════════════════════════════════╗
+       ║  STORY SECTION — full screen     ║
+       ╚══════════════════════════════════╝ */
+    #story {
+      position: relative;
+      height: 100dvh;
+      overflow: hidden;
+      /* background transitions with current child color */
+      transition: background .55s ease;
+    }
+
+    /* thin progress bar at very top */
+    #prog-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: rgba(255,255,255,.18);
+      z-index: 20;
+    }
+    #prog-fill {
+      height: 100%;
+      background: rgba(255,255,255,.88);
+      border-radius: 0 2px 2px 0;
+      transition: width .4s ease;
+      width: 0%;
+    }
+
+    /* scene label */
+    #scene-label {
+      position: absolute;
+      top: 14px; left: 0; right: 0;
+      text-align: center;
+      z-index: 20;
+      font-size: .68rem;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.7);
+      pointer-events: none;
+      min-height: 1em;
+    }
+
+    /* counter top-right */
+    #slide-counter {
+      position: absolute;
+      top: 10px; right: 14px;
+      z-index: 20;
+      font-size: .68rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.45);
+      letter-spacing: .05em;
+    }
+
+    /* ── Slides track ── */
+    #track-wrap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    #track {
+      display: flex;
+      height: 100%;
+      /* width set by JS: 100vw × N */
+      will-change: transform;
+      transition: transform .45s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Individual slide ── */
+    .slide {
+      flex: 0 0 100vw;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 38px 130px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* big radial glow behind text */
+    .slide::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 55% at 50% 55%, rgba(0,0,0,.08) 0%, rgba(0,0,0,.38) 100%);
+      pointer-events: none;
+    }
+
+    /* child avatar */
+    .slide-av {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255,255,255,.55);
+      box-shadow: 0 8px 36px rgba(0,0,0,.35);
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* child name */
+    .slide-name {
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.7);
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* sentence text — the hero */
+    .slide-text {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.45rem, 5.5vw, 2.5rem);
+      color: #fff;
+      text-align: center;
+      line-height: 1.35;
+      text-shadow: 0 2px 20px rgba(0,0,0,.25);
+      max-width: 560px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* tap to hear button */
+    .slide-btn {
+      margin-top: 34px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: rgba(255,255,255,.18);
+      border: 1.5px solid rgba(255,255,255,.4);
+      color: rgba(255,255,255,.9);
+      font-family: 'Nunito', sans-serif;
+      font-size: .88rem;
+      font-weight: 800;
+      padding: 10px 24px;
+      border-radius: 32px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background .15s, transform .1s;
+      position: relative;
+      z-index: 2;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .slide-btn:active { transform: scale(.94); background: rgba(255,255,255,.3); }
+
+    /* wave bars inside button when playing */
+    .wave {
+      display: none;
+      align-items: center;
+      gap: 2.5px;
+      height: 16px;
+    }
+    .wave i {
+      display: block;
+      width: 3px; height: 5px;
+      background: #fff;
+      border-radius: 2px;
+      animation: wv .65s ease-in-out infinite;
+    }
+    .wave i:nth-child(1) { animation-delay: .00s; }
+    .wave i:nth-child(2) { animation-delay: .12s; }
+    .wave i:nth-child(3) { animation-delay: .24s; }
+    .wave i:nth-child(4) { animation-delay: .12s; }
+    .wave i:nth-child(5) { animation-delay: .00s; }
+    @keyframes wv {
+      0%,100% { height: 4px;  opacity: .7; }
+      50%      { height: 14px; opacity: 1;  }
+    }
+
+    .slide.playing .wave    { display: flex; }
+    .slide.playing .s-icon  { display: none; }
+    .slide.playing .slide-btn {
+      background: rgba(255,255,255,.3);
+      border-color: rgba(255,255,255,.7);
+    }
+
+    /* played indicator */
+    .slide-played {
+      position: absolute;
+      bottom: 130px; right: 20px;
+      font-size: .7rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.45);
+      z-index: 2;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .slide.played .slide-played { opacity: 1; }
+
+    /* ── Intro / cover overlay ── */
+    #intro {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 32px max(env(safe-area-inset-bottom), 40px);
+      background: linear-gradient(160deg, #7b1fa2 0%, #c0392b 55%, #e65100 100%);
+      text-align: center;
+      transition: opacity .55s ease, visibility .55s ease;
+    }
+    #intro.gone {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    #intro-img {
+      width: clamp(160px, 44vw, 260px);
+      margin-bottom: 20px;
+      animation: float 3.5s ease-in-out infinite;
+      filter: drop-shadow(0 12px 36px rgba(0,0,0,.4));
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+
+    #intro h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2rem, 9vw, 3.8rem);
+      color: #fff;
+      line-height: 1.05;
+      text-shadow: 0 4px 24px rgba(0,0,0,.3);
+      margin-bottom: 10px;
+    }
+
+    #intro-sub {
+      font-size: .88rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.65);
+      font-style: italic;
+      margin-bottom: 24px;
+    }
+
+    .intro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,.14);
+      border: 1.5px solid rgba(255,255,255,.3);
+      border-radius: 40px;
+      padding: 8px 20px;
+      margin-bottom: 10px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .intro-badge-icon {
+      font-size: 1.3rem;
+    }
+    .intro-badge-text {
+      text-align: left;
+    }
+    .intro-badge-title {
+      display: block;
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    .intro-badge-sub {
+      display: block;
+      font-size: .68rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.65);
+      margin-top: 1px;
+    }
+
+    #intro-start {
+      margin-top: 28px;
+      background: #fff;
+      color: #c0392b;
+      border: none;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      letter-spacing: .06em;
+      padding: 14px 48px;
+      border-radius: 40px;
+      cursor: pointer;
+      box-shadow: 0 6px 28px rgba(0,0,0,.25);
+      transition: transform .12s ease, box-shadow .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #intro-start:active {
+      transform: scale(.95);
+      box-shadow: 0 3px 12px rgba(0,0,0,.2);
+    }
+
+    /* swipe hint (fades after first swipe) */
+    #swipe-hint {
+      position: absolute;
+      bottom: 120px; left: 0; right: 0;
+      text-align: center;
+      z-index: 20;
+      pointer-events: none;
+      transition: opacity .4s;
+    }
+    #swipe-hint span {
+      font-size: .7rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .08em;
+    }
+    #swipe-hint.hide { opacity: 0; }
+
+    /* ── Bottom controls ── */
+    #controls {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 30;
+      background: rgba(0,0,0,.38);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding: 10px 14px max(env(safe-area-inset-bottom), 12px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ctrl-nav {
+      flex-shrink: 0;
+      width: 46px; height: 46px;
+      background: rgba(255,255,255,.14);
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ctrl-nav:active { background: rgba(255,255,255,.28); }
+    .ctrl-nav:disabled { opacity: .3; pointer-events: none; }
+
+    #ctrl-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    #ctrl-av {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,.3);
+      flex-shrink: 0;
+    }
+    #ctrl-meta { min-width: 0; }
+    #ctrl-child {
+      display: block;
+      font-size: .65rem;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.7);
+    }
+    #ctrl-num {
+      display: block;
+      font-size: .68rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.38);
+    }
+
+    #ctrl-play {
+      flex-shrink: 0;
+      background: rgba(255,255,255,.2);
+      border: 1.5px solid rgba(255,255,255,.42);
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      letter-spacing: .04em;
+      padding: 10px 20px;
+      border-radius: 28px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #ctrl-play:active { background: rgba(255,255,255,.36); }
+
+    /* gallery scroll link */
+    #gallery-link {
+      position: absolute;
+      bottom: 82px; left: 50%; transform: translateX(-50%);
+      z-index: 20;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.6);
+      font-size: .7rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      padding: 6px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: background .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #gallery-link:active { background: rgba(255,255,255,.22); }
+
+    /* ╔══════════════════════════════════╗
+       ║  GALLERY SECTION                 ║
+       ╚══════════════════════════════════╝ */
+    #gallery-section {
+      background: #1a1a1a;
+      padding: 0 14px 60px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .gal-head {
+      text-align: center;
+      padding: 48px 0 12px;
+    }
+    .gal-head h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.7rem, 5vw, 2.4rem);
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .gal-head p {
+      color: rgba(255,255,255,.4);
+      font-size: .88rem;
+      font-weight: 700;
+      font-style: italic;
+    }
+    #gal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 20px;
+    }
+    @media (min-width: 440px) {
+      #gal-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    }
+    .g-item {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 1;
+      cursor: pointer;
+      background: rgba(255,255,255,.06);
+      transition: transform .14s ease, box-shadow .14s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .g-item:active { transform: scale(.93); }
+    @media (hover: hover) {
+      .g-item:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,.6); }
+    }
+    .g-item img, .g-item video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .g-play {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.28);
+      pointer-events: none;
+    }
+    .g-play-btn {
+      width: 48px; height: 48px;
+      background: rgba(255,255,255,.88);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      color: #c0392b;
+      padding-left: 4px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.4);
+    }
+    .g-cap {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 6px 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,.65));
+      color: rgba(255,255,255,.88);
+      font-size: .68rem;
+      font-weight: 700;
+    }
+
+    /* Lightbox */
+    #lightbox {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 500;
+      background: rgba(0,0,0,.94);
+      align-items: center; justify-content: center; flex-direction: column;
+    }
+    #lightbox.open { display: flex; }
+    #lb-media { max-width: min(92vw,720px); max-height: 78vh; border-radius: 12px; display: block; object-fit: contain; }
+    #lb-video  { max-width: min(92vw,720px); max-height: 78vh; border-radius: 12px; display: none; outline: none; }
+    #lb-cap    { color: rgba(255,255,255,.6); font-size: .85rem; margin-top: 14px; text-align: center; min-height: 1.2em; padding: 0 56px; }
+    .lb-nav {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,.14); border: none; color: #fff;
+      font-size: 1.6rem; width: 44px; height: 44px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      z-index: 510; backdrop-filter: blur(6px); transition: background .15s;
+    }
+    .lb-nav:hover { background: rgba(255,255,255,.26); }
+    #lb-prev { left: 8px; } #lb-next { right: 8px; }
+    #lb-close {
+      position: fixed; top: 14px; right: 14px;
+      background: rgba(255,255,255,.14); border: none; color: #fff;
+      font-size: 1.2rem; width: 40px; height: 40px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      z-index: 510; backdrop-filter: blur(6px);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║   STORY — horizontal slides  ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div id="story">
+
+  <!-- Cover / intro -->
+  <div id="intro">
+    <img id="intro-img" src="images/intro.png" alt="Little Red Riding Hood">
+    <h1>Little Red<br>Riding Hood</h1>
+    <p id="intro-sub">An interactive story</p>
+    <div class="intro-badge">
+      <span class="intro-badge-icon">🏫</span>
+      <span class="intro-badge-text">
+        <span class="intro-badge-title">LANDAU School</span>
+        <span class="intro-badge-sub">Class 2SW &middot; 2026</span>
+      </span>
+    </div>
+    <button id="intro-start">&#9654;&nbsp; Begin Story</button>
+  </div>
+
+  <div id="prog-bar"><div id="prog-fill"></div></div>
+  <div id="scene-label"></div>
+  <div id="slide-counter"></div>
+
+  <div id="track-wrap">
+    <div id="track"></div>
+  </div>
+
+  <div id="swipe-hint"><span>← swipe to navigate →</span></div>
+  <button id="gallery-link">📸 Gallery ↓</button>
+
+  <div id="controls">
+    <button class="ctrl-nav" id="ctrl-prev">&#8249;</button>
+    <div id="ctrl-center">
+      <img id="ctrl-av" alt="">
+      <div id="ctrl-meta">
+        <span id="ctrl-child"></span>
+        <span id="ctrl-num"></span>
+      </div>
+    </div>
+    <button id="ctrl-play">&#9654;&nbsp; Play All</button>
+    <button class="ctrl-nav" id="ctrl-next">&#8250;</button>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║   GALLERY                    ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div style="background:#1a1a1a; max-width:680px; margin:0 auto;">
+<section id="gallery-section">
+  <div class="gal-head">
+    <h2>📸 Behind the Scenes</h2>
+    <p>The children who brought the story to life</p>
+  </div>
+  <div id="gal-grid"></div>
+</section>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <button id="lb-close">✕</button>
+  <img id="lb-media" alt="">
+  <video id="lb-video" controls playsinline></video>
+  <p id="lb-cap"></p>
+  <button class="lb-nav" id="lb-prev">&#8249;</button>
+  <button class="lb-nav" id="lb-next">&#8250;</button>
+</div>
+
+<script>
+/* ── Story data ── */
+const SENTENCES = [
+  { scene: "Once upon a time…",    text: "Little Red Riding Hood lived in a wood with her mother.",                child: "Omer",  type: "narrative" },
+  { scene: null,                   text: "One day Little Red Riding Hood went to visit her granny.",               child: "Araz",  type: "narrative" },
+  { scene: null,                   text: "She had a nice cake in her basket.",                                     child: "Javid", type: "narrative" },
+  { scene: null,                   text: "On her way Little Red Riding Hood met a wolf.",                          child: "Omer",  type: "narrative" },
+  { scene: "In the deep forest…",  text: "“Hello! Where are you going?”",                               child: "Araz",  type: "wolf"      },
+  { scene: null,                   text: "“I’m going to see my grandmother.”",                      child: "Amina", type: "lrrh"      },
+  { scene: null,                   text: "“She lives in a house behind those trees.”",                   child: "Ayan",  type: "lrrh"      },
+  { scene: "At Granny’s cottage…", text: "The wolf ran to Granny’s house and ate Granny up.",       child: "Javid", type: "narrative" },
+  { scene: null,                   text: "He got into Granny’s bed.",                                         child: "Omer",  type: "narrative" },
+  { scene: null,                   text: "A little later, Little Red Riding Hood reached the house.",              child: "Omer",  type: "narrative" },
+  { scene: null,                   text: "She looked at the wolf.",                                                child: "Araz",  type: "narrative" },
+  { scene: "The big bad wolf…", text: "“Granny, what big eyes you have!”",                          child: "Amina", type: "lrrh"      },
+  { scene: null,                   text: "“All the better to see you with!” said the wolf.",             child: "Javid", type: "wolf"      },
+  { scene: null,                   text: "“Granny, what big ears you have!”",                            child: "Ayan",  type: "lrrh"      },
+  { scene: null,                   text: "“All the better to hear you with!” said the wolf.",            child: "Omer",  type: "wolf"      },
+  { scene: null,                   text: "“Granny, what a big nose you have!”",                          child: "Amina", type: "lrrh"      },
+  { scene: null,                   text: "“All the better to smell you with!” said the wolf.",           child: "Araz",  type: "wolf"      },
+  { scene: null,                   text: "“Granny, what big teeth you have!”",                           child: "Ayan",  type: "lrrh"      },
+  { scene: null,                   text: "“All the better to eat you with!” shouted the wolf.",          child: "Javid", type: "wolf"      },
+  { scene: "The rescue!",          text: "A woodcutter was in the wood.",                                          child: "Omer",  type: "narrative" },
+  { scene: null,                   text: "He heard a loud scream and ran to the house.",                           child: "Araz",  type: "narrative" },
+  { scene: null,                   text: "The woodcutter hit the wolf over the head.",                             child: "Javid", type: "narrative" },
+  { scene: null,                   text: "The wolf opened his mouth wide and shouted and Granny jumped out.",      child: "Araz",  type: "narrative" },
+  { scene: "Happily ever after…", text: "The wolf ran away and Little Red Riding Hood never saw the wolf again.", child: "Javid", type: "narrative" },
+];
+
+/* Child → slide background gradient + accent for controls */
+const CHILD = {
+  Ayan:  { from: '#c2185b', to: '#880e4f', accent: '#f48fb1' },
+  Omer:  { from: '#1565c0', to: '#0d47a1', accent: '#90caf9' },
+  Araz:  { from: '#e65100', to: '#bf360c', accent: '#ffcc80' },
+  Javid: { from: '#2e7d32', to: '#1b5e20', accent: '#a5d6a7' },
+  Amina: { from: '#6a1fa2', to: '#4a148c', accent: '#ce93d8' },
+};
+
+/* resolve scene label per index */
+const SCENES = [];
+let lastScene = '';
+SENTENCES.forEach(s => {
+  if (s.scene) lastScene = s.scene;
+  SCENES.push(lastScene);
+});
+
+/* ── Build slides ── */
+const SLIDES = [];
+const track  = document.getElementById('track');
+track.style.width = `${SENTENCES.length * 100}vw`;
+
+SENTENCES.forEach((s, i) => {
+  const c  = CHILD[s.child] || { from:'#333', to:'#111', accent:'#fff' };
+  const sl = document.createElement('div');
+  sl.className = 'slide';
+  sl.style.background = `linear-gradient(150deg, ${c.from} 0%, ${c.to} 100%)`;
+  sl.dataset.idx = i;
+
+  sl.innerHTML = `
+    <img class="slide-av" src="photos/${s.child.toLowerCase()}.jpg"
+         alt="${s.child}" onerror="this.style.opacity='.4'">
+    <span class="slide-name">${s.child}</span>
+    <p class="slide-text">${s.text}</p>
+    <button class="slide-btn">
+      <span class="s-icon">🔊</span>
+      <span class="wave"><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="s-label">Tap to listen</span>
+    </button>
+    <span class="slide-played">✓ played</span>
+  `;
+
+  sl.querySelector('.slide-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    if (current === i && isPlaying) { pauseAudio(); }
+    else { playFrom(i); }
+  });
+
+  track.appendChild(sl);
+  SLIDES.push(sl);
+});
+
+/* ── Navigation state ── */
+let current   = 0;
+let hintGone  = false;
+
+function goTo(n, skipAudio) {
+  n = Math.max(0, Math.min(n, SENTENCES.length - 1));
+  if (!hintGone) { hintGone = true; document.getElementById('swipe-hint').classList.add('hide'); }
+  current = n;
+  track.style.transform = `translateX(-${n * 100}vw)`;
+  updateUI();
+  if (!skipAudio && isPlaying) playIndex(n); // auto-advance in play-all mode
+}
+
+function updateUI() {
+  /* progress bar */
+  document.getElementById('prog-fill').style.width = `${((current + 1) / SENTENCES.length) * 100}%`;
+  /* scene label */
+  document.getElementById('scene-label').textContent = SCENES[current] || '';
+  /* counter */
+  document.getElementById('slide-counter').textContent = `${current + 1} / ${SENTENCES.length}`;
+  /* controls */
+  const s = SENTENCES[current];
+  const c = CHILD[s.child] || {};
+  document.getElementById('ctrl-av').src = `photos/${s.child.toLowerCase()}.jpg`;
+  document.getElementById('ctrl-child').textContent = s.child;
+  document.getElementById('ctrl-child').style.color = c.accent || '#fff';
+  document.getElementById('ctrl-num').textContent = `${current + 1} of ${SENTENCES.length}`;
+  document.getElementById('ctrl-prev').disabled = current === 0;
+  document.getElementById('ctrl-next').disabled = current === SENTENCES.length - 1;
+  /* play button label */
+  document.getElementById('ctrl-play').innerHTML =
+    isPlaying ? '&#10074;&#10074;&nbsp; Pause' : '&#9654;&nbsp; Play All';
+}
+
+/* ── Swipe / touch ── */
+let txStart = null, txLast = null;
+const trackWrap = document.getElementById('track-wrap');
+
+trackWrap.addEventListener('touchstart', e => {
+  txStart = e.touches[0].clientX;
+  txLast  = txStart;
+  track.style.transition = 'none';
+}, { passive: true });
+
+trackWrap.addEventListener('touchmove', e => {
+  if (txStart === null) return;
+  const dx = e.touches[0].clientX - txStart;
+  txLast = e.touches[0].clientX;
+  track.style.transform = `translateX(calc(-${current * 100}vw + ${dx}px))`;
+}, { passive: true });
+
+trackWrap.addEventListener('touchend', e => {
+  if (txStart === null) return;
+  const dx = txLast - txStart;
+  track.style.transition = 'transform .45s cubic-bezier(.4,0,.2,1)';
+  if (Math.abs(dx) > 48) {
+    if (dx < 0 && current < SENTENCES.length - 1) goTo(current + 1);
+    else if (dx > 0 && current > 0) goTo(current - 1);
+    else goTo(current, true); // snap back
+  } else {
+    goTo(current, true); // snap back without audio change
+  }
+  txStart = null;
+});
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') goTo(current + 1, !isPlaying);
+  if (e.key === 'ArrowLeft')  goTo(current - 1, !isPlaying);
+  if (e.key === ' ') { e.preventDefault(); isPlaying ? pauseAudio() : playFrom(current); }
+});
+
+/* ── Button nav ── */
+document.getElementById('ctrl-prev').addEventListener('click', () => goTo(current - 1, !isPlaying));
+document.getElementById('ctrl-next').addEventListener('click', () => goTo(current + 1, !isPlaying));
+document.getElementById('ctrl-play').addEventListener('click', () => {
+  if (isPlaying) pauseAudio();
+  else playFrom(current);
+});
+
+/* ── Playback ── */
+let currentAudio = null;
+let isPlaying    = false;
+let isPaused     = false;
+let playIdx      = -1;
+
+function playFrom(idx) {
+  stopAudio();
+  isPlaying = true; isPaused = false;
+  goTo(idx, true);
+  playIndex(idx);
+}
+
+function pauseAudio() {
+  if (currentAudio) currentAudio.pause();
+  if (SLIDES[playIdx]) SLIDES[playIdx].classList.remove('playing');
+  isPlaying = false; isPaused = true;
+  updateUI();
+}
+
+function stopAudio() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (playIdx >= 0 && SLIDES[playIdx]) SLIDES[playIdx].classList.remove('playing');
+  playIdx = -1; isPlaying = false; isPaused = false;
+}
+
+function playIndex(idx) {
+  if (idx >= SENTENCES.length || !isPlaying) {
+    stopAudio(); updateUI(); return;
+  }
+  if (playIdx >= 0 && SLIDES[playIdx]) SLIDES[playIdx].classList.remove('playing');
+  playIdx = idx;
+  SLIDES[idx].classList.add('playing');
+
+  const audio = new Audio(`audio/sentence_${String(idx + 1).padStart(2, '0')}.mp3`);
+  const advance = () => {
+    if (audio !== currentAudio) return;
+    SLIDES[idx].classList.remove('playing');
+    SLIDES[idx].classList.add('played');
+    currentAudio = null;
+    if (isPlaying) {
+      if (idx + 1 < SENTENCES.length) {
+        goTo(idx + 1, true);
+        setTimeout(() => playIndex(idx + 1), 460); // wait for slide transition
+      } else {
+        stopAudio(); updateUI();
+      }
+    }
+  };
+  audio.onended = advance;
+  audio.onerror = advance;
+  audio.play();
+  currentAudio = audio;
+  updateUI();
+}
+
+/* ── Gallery link ── */
+document.getElementById('gallery-link').addEventListener('click', () => {
+  document.getElementById('gallery-section').scrollIntoView({ behavior: 'smooth' });
+});
+
+/* ── Gallery build ── */
+const GALLERY_ITEMS = [
+  { type: 'photo', src: 'gallery/photo_01.jpg',  caption: '' },
+  { type: 'photo', src: 'gallery/photo_02.jpg',  caption: '' },
+  { type: 'photo', src: 'gallery/photo_03.jpg',  caption: '' },
+  { type: 'photo', src: 'gallery/photo_001.jpg', caption: '' },
+  { type: 'photo', src: 'gallery/photo_002.jpg', caption: '' },
+  { type: 'photo', src: 'gallery/photo_003.jpg', caption: '' },
+  { type: 'photo', src: 'gallery/photo_004.jpg', caption: '' },
+  { type: 'photo', src: 'gallery/photo_005.jpg', caption: '' },
+  { type: 'photo', src: 'gallery/photo_006.jpg', caption: '' },
+  { type: 'video', src: 'gallery/video_01.mp4',  caption: '' },
+  { type: 'video', src: 'gallery/video_02.mp4',  caption: '' },
+  { type: 'video', src: 'gallery/video_03.mp4',  caption: '' },
+];
+
+(function() {
+  const grid = document.getElementById('gal-grid');
+  GALLERY_ITEMS.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'g-item';
+    const cap = item.caption ? `<div class="g-cap">${item.caption}</div>` : '';
+    if (item.type === 'video') {
+      el.innerHTML = `<video src="${item.src}" muted playsinline preload="metadata" style="pointer-events:none"></video>
+        <div class="g-play"><div class="g-play-btn">&#9654;</div></div>${cap}`;
+      const vid = el.querySelector('video');
+      vid.addEventListener('loadedmetadata', () => { vid.currentTime = 0.001; });
+    } else {
+      el.innerHTML = `<img src="${item.src}" alt="${item.caption||''}" loading="lazy">${cap}`;
+    }
+    el.addEventListener('click', () => openLightbox(i));
+    grid.appendChild(el);
+  });
+})();
+
+/* ── Lightbox ── */
+let lbIdx = 0;
+const lightbox = document.getElementById('lightbox');
+const lbMedia  = document.getElementById('lb-media');
+const lbVideo  = document.getElementById('lb-video');
+const lbCap    = document.getElementById('lb-cap');
+
+function openLightbox(i) {
+  lbIdx = i; showLb();
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  lbVideo.pause(); lbVideo.src = ''; lbMedia.src = '';
+}
+function showLb() {
+  const item = GALLERY_ITEMS[lbIdx];
+  lbCap.textContent = item.caption || '';
+  lbVideo.pause();
+  if (item.type === 'video') {
+    lbMedia.style.display = 'none'; lbVideo.style.display = 'block';
+    lbVideo.src = item.src; lbVideo.load();
+  } else {
+    lbVideo.style.display = 'none'; lbMedia.style.display = 'block';
+    lbMedia.src = item.src;
+  }
+  document.getElementById('lb-prev').style.visibility = lbIdx > 0 ? 'visible' : 'hidden';
+  document.getElementById('lb-next').style.visibility = lbIdx < GALLERY_ITEMS.length - 1 ? 'visible' : 'hidden';
+}
+document.getElementById('lb-close').addEventListener('click', closeLightbox);
+document.getElementById('lb-prev').addEventListener('click', () => { if (lbIdx > 0) { lbIdx--; showLb(); } });
+document.getElementById('lb-next').addEventListener('click', () => { if (lbIdx < GALLERY_ITEMS.length - 1) { lbIdx++; showLb(); } });
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft'  && lbIdx > 0)                          { lbIdx--; showLb(); }
+  if (e.key === 'ArrowRight' && lbIdx < GALLERY_ITEMS.length - 1)   { lbIdx++; showLb(); }
+});
+
+/* ── Intro ── */
+document.getElementById('intro-start').addEventListener('click', () => {
+  document.getElementById('intro').classList.add('gone');
+});
+
+/* ── Init ── */
+goTo(0, true);
+</script>
+</body>
+</html>
