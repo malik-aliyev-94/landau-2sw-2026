@@ -5,33 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Little Red Riding Hood</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Nunito', sans-serif;
-      background: #0b1a0e;
+      background-color: #fffde7;
+      background-image: radial-gradient(circle, rgba(0,0,0,.12) 1px, transparent 1px);
+      background-size: 22px 22px;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* ── Stars ── */
-    #stars {
+    /* ── Floating stars ── */
+    #sparks {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 0;
+      overflow: hidden;
     }
-    .star {
+    .spark {
       position: absolute;
-      border-radius: 50%;
-      background: #fff;
-      animation: twinkle var(--dur, 2s) ease-in-out infinite alternate;
+      font-size: var(--sz, 1.2rem);
+      line-height: 1;
+      opacity: var(--op, .45);
+      animation: spin var(--dur, 8s) linear infinite;
+      color: var(--col, #e63946);
     }
-    @keyframes twinkle {
-      from { opacity: .2; transform: scale(.8); }
-      to   { opacity: 1;  transform: scale(1.3); }
+    @keyframes spin {
+      from { transform: rotate(0deg) scale(1); }
+      50%  { transform: rotate(180deg) scale(1.3); }
+      to   { transform: rotate(360deg) scale(1); }
     }
 
     /* ── Header ── */
@@ -39,48 +45,68 @@
       position: relative;
       z-index: 1;
       text-align: center;
-      padding: 48px 20px 24px;
+      padding: 40px 20px 18px;
     }
-    .hero-emoji {
+    .hero-img {
       display: block;
-      width: clamp(200px, 50vw, 80vw);
-      margin: 0 auto 12px;
-      animation: float 3.5s ease-in-out infinite;
+      width: clamp(170px, 42vw, 68vw);
+      margin: 0 auto 14px;
+      border: 4px solid #000;
+      box-shadow: 7px 7px 0 #000;
+      border-radius: 16px;
+      animation: float 3s ease-in-out infinite;
+      background: #fff;
     }
     @keyframes float {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-12px); }
+      0%,100% { transform: translateY(0) rotate(-1deg); }
+      50%      { transform: translateY(-10px) rotate(1deg); }
+    }
+    .title-wrap {
+      display: inline-block;
+      background: #e63946;
+      border: 4px solid #000;
+      box-shadow: 6px 6px 0 #000;
+      padding: 8px 24px 4px;
+      margin-bottom: 14px;
+      transform: rotate(-1.5deg);
     }
     h1 {
-      font-family: 'Fredoka One', cursive;
-      font-size: clamp(2.2rem, 9vw, 4.5rem);
-      line-height: 1.05;
-      color: #ffd166;
-      text-shadow: 3px 3px 0 #e63946, 6px 6px 0 rgba(0,0,0,.4);
-      margin-bottom: 30px;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(2.4rem, 10vw, 5rem);
+      line-height: 1;
+      color: #fff;
+      letter-spacing: .06em;
+      text-shadow: 3px 3px 0 rgba(0,0,0,.35);
     }
     .subtitle {
-      color: rgba(255,255,255,.6);
-      font-size: .95rem;
-      margin-top: 8px;
-      font-style: italic;
+      display: inline-block;
+      background: #ffe100;
+      border: 2.5px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      color: #000;
+      font-size: .85rem;
+      font-weight: 900;
+      padding: 3px 14px;
+      margin-top: 4px;
+      letter-spacing: .04em;
     }
+    .subtitle + .subtitle { margin-left: 6px; }
 
-    /* ── Hint bar ── */
+    /* ── Hint ── */
     .hint {
       position: relative;
       z-index: 1;
       text-align: center;
-      margin: 0 20px 28px;
-      padding: 10px 18px;
-      background: rgba(255,255,255,.08);
-      border-radius: 40px;
-      color: rgba(255,255,255,.75);
+      margin: 0 auto 28px;
+      padding: 10px 20px;
+      background: #fff;
+      border: 2.5px solid #000;
+      box-shadow: 4px 4px 0 #000;
+      border-radius: 8px;
+      color: #000;
       font-size: .88rem;
-      backdrop-filter: blur(6px);
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
+      font-weight: 800;
+      max-width: 440px;
     }
 
     /* ── Story ── */
@@ -93,18 +119,22 @@
     }
 
     /* ── Scene dividers ── */
-    .scene {
+    .scene-wrap {
       text-align: center;
-      font-size: .72rem;
-      font-weight: 900;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.45);
-      margin: 32px 0 14px;
+      margin: 36px 0 16px;
     }
-    .scene::before, .scene::after {
-      content: ' ✦ ';
-      color: #ffd166;
+    .scene {
+      display: inline-block;
+      background: #ffe100;
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000;
+      padding: 6px 22px 4px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.15rem;
+      letter-spacing: .1em;
+      color: #000;
+      text-transform: uppercase;
+      transform: rotate(-1.2deg);
     }
 
     /* ── Cards ── */
@@ -112,25 +142,44 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      border-radius: 22px;
-      /* right padding reserves space for the fixed avatar (62px + 14px offset) */
-      /* padding: 18px 82px 22px 18px; */
-      padding: 18px 82px 18px 22px;
-      margin-bottom: 11px;
+      border-radius: 10px;
+      padding: 16px 78px 16px 18px;
+      margin-bottom: 12px;
       cursor: pointer;
       position: relative;
-      overflow: hidden;
-      transition: transform .12s ease, box-shadow .12s ease;
+      background: #fff;
+      border: 3px solid #000;
+      box-shadow: 5px 5px 0 #000;
+      transition: transform .1s ease, box-shadow .1s ease;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
-      box-shadow: 0 4px 14px rgba(0,0,0,.35);
       scroll-margin-bottom: 90px;
     }
-    .card:active  { transform: scale(.96); }
-    .card.playing { animation: glow .55s ease-in-out infinite alternate; }
-    @keyframes glow {
-      from { box-shadow: 0 4px 14px rgba(0,0,0,.35); transform: scale(1); }
-      to   { box-shadow: 0 8px 32px rgba(255,255,255,.25); transform: scale(1.025); }
+    /* alternating tilt */
+    .card:nth-child(odd)  { transform: rotate(-0.5deg); }
+    .card:nth-child(even) { transform: rotate(0.5deg);  }
+
+    /* colored top strip */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: var(--cc, #e63946);
+      border-radius: 7px 7px 0 0;
+    }
+    .card:active {
+      transform: rotate(0deg) scale(.97) !important;
+      box-shadow: 2px 2px 0 #000;
+    }
+    .card.playing {
+      border-color: var(--cc, #e63946);
+      box-shadow: 6px 6px 0 var(--cc, #e63946);
+      animation: wiggle .45s ease-in-out infinite alternate;
+    }
+    @keyframes wiggle {
+      from { transform: rotate(-0.8deg) scale(1); }
+      to   { transform: rotate(0.8deg)  scale(1.015); }
     }
 
     /* ── Speaker button ── */
@@ -139,57 +188,77 @@
       width: 46px;
       height: 46px;
       border-radius: 50%;
-      background: rgba(255,255,255,.2);
+      background: var(--cc, #e63946);
+      border: 2.5px solid #000;
+      box-shadow: 3px 3px 0 #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
-      transition: background .2s;
+      font-size: 1.2rem;
+      transition: box-shadow .1s, transform .1s;
     }
-    .card.playing .btn { animation: bump .55s ease-in-out infinite alternate; }
+    .card.playing .btn {
+      animation: bump .45s ease-in-out infinite alternate;
+    }
     @keyframes bump {
       from { transform: scale(1); }
-      to   { transform: scale(1.18); }
+      to   { transform: scale(1.2); }
     }
 
     /* ── Text ── */
     .text {
       flex: 1;
-      font-size: clamp(.98rem, 3.5vw, 1.18rem);
+      font-size: clamp(.95rem, 3.4vw, 1.15rem);
       font-weight: 800;
-      line-height: 1.55;
-      color: #fff;
+      line-height: 1.5;
+      color: #111;
     }
 
-    /* ── Child badge ── */
+    /* ── Badge ── */
     .badge {
       position: absolute;
-      top: 9px;
-      right: 13px;
-      font-size: .62rem;
-      font-weight: 900;
-      letter-spacing: .08em;
+      top: 10px;
+      right: 11px;
+      font-family: 'Bangers', cursive;
+      font-size: .78rem;
+      letter-spacing: .1em;
+      background: var(--cc, #e63946);
+      color: #fff;
+      padding: 1px 8px;
+      border: 2px solid #000;
+      border-radius: 4px;
       text-transform: uppercase;
-      color: rgba(255,255,255,.65);
     }
 
-    /* Played checkmark */
     .card.played::after {
       content: '✓';
       position: absolute;
-      bottom: 7px;
+      bottom: 8px;
       right: 12px;
-      font-size: .68rem;
-      color: rgba(255,255,255,.45);
+      font-size: .72rem;
+      font-weight: 900;
+      color: rgba(0,0,0,.3);
     }
 
-    /* ── Trees ── */
-    .trees {
-      text-align: center;
-      font-size: 1.6rem;
-      margin: 6px 0 18px;
-      opacity: .5;
+    /* ── Comic strip separator ── */
+    .strip-sep {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0 20px;
+      opacity: .55;
+    }
+    .strip-sep::before, .strip-sep::after {
+      content: '';
+      flex: 1;
+      height: 3px;
+      background: #000;
+    }
+    .strip-sep span {
+      font-family: 'Bangers', cursive;
+      font-size: 1.1rem;
       letter-spacing: .15em;
+      color: #000;
     }
 
     /* ── Footer ── */
@@ -198,43 +267,45 @@
       z-index: 1;
       text-align: center;
       padding: 16px 20px 36px;
-      color: rgba(255,255,255,.35);
-      font-size: .82rem;
+    }
+    .footer-inner {
+      display: inline-block;
+      background: #e63946;
+      border: 3px solid #000;
+      box-shadow: 5px 5px 0 #000;
+      padding: 8px 28px 6px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.5rem;
+      letter-spacing: .12em;
+      color: #fff;
+      transform: rotate(1deg);
     }
 
-    /* ── Child avatar ── */
+    /* ── Avatar ── */
     #avatar {
       position: fixed;
       right: 14px;
-      top: -80px;          /* starts off-screen */
+      top: -80px;
       width: 62px;
       height: 62px;
       border-radius: 50%;
       overflow: hidden;
-      border: 3px solid #fff;
-      box-shadow: 0 4px 20px rgba(0,0,0,.5);
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000;
       z-index: 200;
       pointer-events: none;
       opacity: 0;
-      transition: top .45s cubic-bezier(.34,1.4,.64,1),
-                  border-color .3s ease,
-                  opacity .3s ease;
+      transition: top .45s cubic-bezier(.34,1.4,.64,1), opacity .3s ease;
     }
     #avatar.visible { opacity: 1; }
-    #avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+    #avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     @media (min-width: 520px) {
       .card { gap: 18px; }
-      .btn  { width: 54px; height: 54px; font-size: 1.5rem; }
+      .btn  { width: 52px; height: 52px; font-size: 1.4rem; }
     }
-    /* At 820px+ the card column is centered and the avatar sits to its right */
     @media (min-width: 820px) {
-      .card { padding: 22px 26px 22px 26px; }
+      .card { padding: 20px 26px; }
     }
 
     /* ── Gallery ── */
@@ -247,26 +318,37 @@
     }
     .gallery-header {
       text-align: center;
-      padding: 48px 0 8px;
+      padding: 48px 0 10px;
+    }
+    .gallery-title-wrap {
+      display: inline-block;
+      background: #0057ff;
+      border: 3px solid #000;
+      box-shadow: 5px 5px 0 #000;
+      padding: 6px 24px 4px;
+      transform: rotate(1.2deg);
+      margin-bottom: 8px;
     }
     .gallery-header h2 {
-      font-family: 'Fredoka One', cursive;
-      font-size: clamp(1.7rem, 6vw, 2.6rem);
-      color: #ffd166;
-      text-shadow: 2px 2px 0 #e63946, 4px 4px 0 rgba(0,0,0,.35);
+      font-family: 'Bangers', cursive;
+      font-size: clamp(1.8rem, 6vw, 2.8rem);
+      color: #fff;
+      letter-spacing: .08em;
     }
     .gallery-header p {
-      color: rgba(255,255,255,.5);
+      font-weight: 800;
+      color: #000;
       font-size: .9rem;
-      font-style: italic;
-      margin-top: 6px;
+      margin-top: 10px;
     }
     .gallery-divider {
       text-align: center;
-      font-size: 1.4rem;
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      letter-spacing: .3em;
+      color: #000;
       opacity: .4;
-      letter-spacing: .2em;
-      margin: 18px 0 20px;
+      margin: 16px 0 20px;
     }
     #gallery-grid {
       display: grid;
@@ -278,23 +360,33 @@
     }
     .g-item {
       position: relative;
-      border-radius: 16px;
+      border-radius: 6px;
       overflow: hidden;
       aspect-ratio: 1;
       cursor: pointer;
-      background: rgba(255,255,255,.07);
-      box-shadow: 0 4px 16px rgba(0,0,0,.45);
-      transition: transform .15s ease, box-shadow .15s ease;
+      border: 3px solid #000;
+      box-shadow: 5px 5px 0 #000;
+      transition: transform .12s ease, box-shadow .12s ease;
       -webkit-tap-highlight-color: transparent;
+      background: #ddd;
     }
-    .g-item:active { transform: scale(.94); }
+    .g-item:nth-child(3n+1) { transform: rotate(-0.8deg); }
+    .g-item:nth-child(3n+2) { transform: rotate(0.6deg); }
+    .g-item:nth-child(3n)   { transform: rotate(-0.4deg); }
+    .g-item:active {
+      transform: rotate(0deg) scale(.93) !important;
+      box-shadow: 2px 2px 0 #000;
+    }
     @media (hover: hover) {
-      .g-item:hover { transform: scale(1.04); box-shadow: 0 8px 28px rgba(0,0,0,.6); }
+      .g-item:hover {
+        transform: rotate(0deg) scale(1.05) !important;
+        box-shadow: 8px 8px 0 #000;
+        z-index: 2;
+      }
     }
     .g-item img,
     .g-item video {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       object-fit: cover;
       display: block;
     }
@@ -304,20 +396,32 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,.32);
-      font-size: 2.6rem;
-      color: #fff;
+      background: rgba(255,225,0,.25);
       pointer-events: none;
+    }
+    .g-play-circle {
+      width: 52px;
+      height: 52px;
+      background: #ffe100;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: #000;
+      padding-left: 4px;
     }
     .g-caption {
       position: absolute;
       bottom: 0; left: 0; right: 0;
       padding: 6px 8px;
-      background: linear-gradient(transparent, rgba(0,0,0,.72));
-      color: rgba(255,255,255,.9);
+      background: rgba(255,225,0,.9);
+      border-top: 2px solid #000;
+      color: #000;
       font-size: .68rem;
-      font-weight: 700;
-      line-height: 1.35;
+      font-weight: 900;
     }
 
     /* ── Lightbox ── */
@@ -326,7 +430,7 @@
       position: fixed;
       inset: 0;
       z-index: 500;
-      background: rgba(0,0,0,.94);
+      background: rgba(0,0,0,.9);
       align-items: center;
       justify-content: center;
       flex-direction: column;
@@ -335,19 +439,22 @@
     #lb-media {
       max-width: min(92vw, 720px);
       max-height: 78vh;
-      border-radius: 14px;
+      border-radius: 6px;
       display: block;
       object-fit: contain;
+      border: 3px solid #fff;
     }
     #lb-video {
       max-width: min(92vw, 720px);
       max-height: 78vh;
-      border-radius: 14px;
+      border-radius: 6px;
       display: none;
       outline: none;
+      border: 3px solid #fff;
     }
     #lb-caption {
-      color: rgba(255,255,255,.65);
+      color: #ffe100;
+      font-weight: 900;
       font-size: .86rem;
       margin-top: 14px;
       text-align: center;
@@ -358,10 +465,12 @@
       position: fixed;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255,255,255,.14);
-      border: none;
-      color: #fff;
-      font-size: 1.7rem;
+      background: #ffe100;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      color: #000;
+      font-size: 1.5rem;
+      font-weight: 900;
       width: 46px; height: 46px;
       border-radius: 50%;
       cursor: pointer;
@@ -369,19 +478,20 @@
       align-items: center;
       justify-content: center;
       z-index: 510;
-      backdrop-filter: blur(6px);
-      transition: background .15s;
+      transition: transform .1s;
     }
-    .lb-nav:hover { background: rgba(255,255,255,.26); }
+    .lb-nav:active { transform: translateY(-50%) scale(.9); }
     #lb-prev { left: 10px; }
     #lb-next { right: 10px; }
     #lb-close {
       position: fixed;
       top: 14px; right: 14px;
-      background: rgba(255,255,255,.14);
-      border: none;
+      background: #e63946;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
       color: #fff;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
+      font-weight: 900;
       width: 42px; height: 42px;
       border-radius: 50%;
       cursor: pointer;
@@ -389,21 +499,17 @@
       align-items: center;
       justify-content: center;
       z-index: 510;
-      backdrop-filter: blur(6px);
-      transition: background .15s;
     }
-    #lb-close:hover { background: rgba(255,255,255,.26); }
 
     /* ── Player bar ── */
     #player-bar {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       z-index: 300;
-      background: rgba(7, 16, 9, 0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255,255,255,.1);
+      background: #ffe100;
+      border-top: 3px solid #000;
       padding: 0 16px env(safe-area-inset-bottom);
+      box-shadow: 0 -4px 0 #000;
     }
     #pb-idle {
       display: flex;
@@ -412,97 +518,112 @@
       padding: 14px 0;
     }
     #pb-play-btn {
-      background: linear-gradient(135deg,#ffd166,#e63946);
-      border: none;
+      background: #e63946;
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000;
       color: #fff;
-      font-family: 'Fredoka One', cursive;
-      font-size: 1.22rem;
-      letter-spacing: .05em;
-      padding: 13px 44px;
-      border-radius: 40px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      letter-spacing: .1em;
+      padding: 11px 40px 9px;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(230,57,70,.45);
-      transition: transform .12s ease, box-shadow .12s ease;
+      transition: transform .1s, box-shadow .1s;
       -webkit-tap-highlight-color: transparent;
     }
-    #pb-play-btn:active { transform: scale(.95); box-shadow: 0 2px 8px rgba(230,57,70,.3); }
+    #pb-play-btn:active {
+      transform: translate(3px,3px);
+      box-shadow: 1px 1px 0 #000;
+    }
     #pb-active {
       display: none;
       align-items: center;
       gap: 12px;
       padding: 10px 0;
     }
-    #pb-info {
-      flex: 1;
-      min-width: 0;
-    }
+    #pb-info { flex: 1; min-width: 0; }
     #pb-child {
       display: block;
-      font-size: .68rem;
-      font-weight: 900;
-      letter-spacing: .1em;
-      text-transform: uppercase;
+      font-family: 'Bangers', cursive;
+      font-size: .82rem;
+      letter-spacing: .12em;
       margin-bottom: 2px;
+      color: #000;
     }
     #pb-text {
       display: block;
       font-size: .82rem;
       font-weight: 700;
-      color: rgba(255,255,255,.7);
+      color: rgba(0,0,0,.7);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     #pb-num {
       flex-shrink: 0;
-      font-size: .7rem;
-      font-weight: 900;
-      color: rgba(255,255,255,.38);
+      font-family: 'Bangers', cursive;
+      font-size: .82rem;
+      letter-spacing: .06em;
+      color: rgba(0,0,0,.55);
       white-space: nowrap;
     }
     #pb-toggle-btn {
       flex-shrink: 0;
       width: 44px; height: 44px;
       border-radius: 50%;
-      border: none;
-      background: rgba(255,255,255,.12);
-      color: #fff;
-      font-size: 1.1rem;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      background: #fff;
+      color: #000;
+      font-size: 1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background .15s;
+      transition: transform .1s, box-shadow .1s;
       -webkit-tap-highlight-color: transparent;
     }
-    #pb-toggle-btn:active { background: rgba(255,255,255,.26); }
+    #pb-toggle-btn:active {
+      transform: translate(2px,2px);
+      box-shadow: 1px 1px 0 #000;
+    }
   </style>
 </head>
 <body>
 
-<div id="stars"></div>
+<div id="sparks"></div>
 
 <header>
-  <img class="hero-emoji" src="images/intro.png" alt="Little Red Riding Hood">
-  <h1>Little Red<br>Riding Hood</h1>
-  <p class="subtitle">An interactive story</p>
-  <p class="subtitle">LANDAU School &middot; Class 2SW &middot; 2026</p>
+  <img class="hero-img" src="images/intro.png" alt="Little Red Riding Hood">
+  <div style="margin-top:14px;">
+    <div class="title-wrap">
+      <h1>Little Red<br>Riding Hood</h1>
+    </div>
+  </div>
+  <div style="margin-top:10px;">
+    <span class="subtitle">An Interactive Story</span>
+    <span class="subtitle">LANDAU · Class 2SW · 2026</span>
+  </div>
 </header>
 
 <div style="margin: 0 14px;">
-  <p class="hint">👆 Tap a sentence to hear it read aloud!</p>
+  <p class="hint">👆 Tap a panel to hear it read aloud!</p>
 </div>
 
 <main id="story"></main>
 
-<footer>🌟 The End 🌟</footer>
+<footer>
+  <div class="footer-inner">★ THE END ★</div>
+</footer>
 
 <section id="gallery-section">
   <div class="gallery-header">
-    <h2>📸 Behind the Scenes</h2>
+    <div class="gallery-title-wrap">
+      <h2>📸 Behind the Scenes</h2>
+    </div>
     <p>The children who brought the story to life</p>
   </div>
-  <div class="gallery-divider">🌲 🌳 🌲</div>
+  <div class="gallery-divider">★ ★ ★</div>
   <div id="gallery-grid"></div>
 </section>
 
@@ -519,7 +640,7 @@
 <!-- Player bar -->
 <div id="player-bar">
   <div id="pb-idle">
-    <button id="pb-play-btn">&#9654;&nbsp;&nbsp;Play Story</button>
+    <button id="pb-play-btn">▶ &nbsp;PLAY STORY</button>
   </div>
   <div id="pb-active">
     <div id="pb-info">
@@ -534,95 +655,95 @@
 <div id="avatar"><img id="avatarImg" alt=""></div>
 
 <script>
-/* ── Story data ── */
 const SENTENCES = [
-  // scene, text, child, type, pitch, rate
-  { scene: "Once upon a time…",      text: "Little Red Riding Hood lived in a wood with her mother.",                child: "Omer",      type: "narrative", pitch: 1.4,  rate: 1.0  },
-  { scene: null,                     text: "One day Little Red Riding Hood went to visit her granny.",               child: "Araz",      type: "narrative", pitch: 1.2,  rate: 1.0  },
-  { scene: null,                     text: "She had a nice cake in her basket.",                                     child: "Javid",     type: "narrative", pitch: 1.5,  rate: 1.1  },
-  { scene: null,                     text: "On her way Little Red Riding Hood met a wolf.",                          child: "Omer",      type: "narrative", pitch: 1.1,  rate: 0.95 },
-  { scene: "In the deep forest…",    text: "“Hello! Where are you going?”",                                          child: "Araz",      type: "wolf",      pitch: 0.8,  rate: 0.9  },
-  { scene: null,                     text: "“I’m going to see my grandmother.”",                                     child: "Amina",     type: "lrrh",      pitch: 1.6,  rate: 1.05 },
-  { scene: null,                     text: "“She lives in a house behind those trees.”",                             child: "Ayan",      type: "lrrh",      pitch: 1.5,  rate: 1.0  },
-  { scene: "At Granny’s cottage…",   text: "The wolf ran to Granny’s house and ate Granny up.",                      child: "Javid",     type: "narrative", pitch: 1.3,  rate: 1.0  },
-  { scene: null,                     text: "He got into Granny’s bed.",                                              child: "Omer",      type: "narrative", pitch: 1.4,  rate: 1.0  },
-  { scene: null,                     text: "A little later, Little Red Riding Hood reached the house.",              child: "Omer",      type: "narrative", pitch: 1.15, rate: 1.0  },
-  { scene: null,                     text: "She looked at the wolf.",                                                child: "Araz",      type: "narrative", pitch: 1.3,  rate: 1.0  },
-  { scene: "The big bad wolf…",      text: "“Granny, what big eyes you have!”",                                      child: "Amina",     type: "lrrh",      pitch: 1.7,  rate: 1.1  },
-  { scene: null,                     text: "“All the better to see you with!” said the wolf.",                       child: "Javid",     type: "wolf",      pitch: 0.75, rate: 0.88 },
-  { scene: null,                     text: "“Granny, what big ears you have!”",                                      child: "Ayan",      type: "lrrh",      pitch: 1.65, rate: 1.1  },
-  { scene: null,                     text: "“All the better to hear you with!” said the wolf.",                      child: "Omer",      type: "wolf",      pitch: 0.75, rate: 0.88 },
-  { scene: null,                     text: "“Granny, what a big nose you have!”",                                    child: "Amina",     type: "lrrh",      pitch: 1.7,  rate: 1.0  },
-  { scene: null,                     text: "“All the better to smell you with!” said the wolf.",                     child: "Araz",      type: "wolf",      pitch: 0.75, rate: 0.88 },
-  { scene: null,                     text: "“Granny, what big teeth you have!”",                                     child: "Ayan",      type: "lrrh",      pitch: 1.6,  rate: 0.95 },
-  { scene: null,                     text: "“All the better to eat you with!” shouted the wolf.",                    child: "Javid",     type: "wolf",      pitch: 0.7,  rate: 0.85 },
-  { scene: "The rescue!",            text: "A woodcutter was in the wood.",                                          child: "Omer",      type: "narrative", pitch: 1.2,  rate: 1.05 },
-  { scene: null,                     text: "He heard a loud scream and ran to the house.",                           child: "Araz",      type: "narrative", pitch: 1.1,  rate: 1.0  },
-  { scene: null,                     text: "The woodcutter hit the wolf over the head.",                             child: "Javid",     type: "narrative", pitch: 1.45, rate: 1.1  },
-  { scene: null,                     text: "The wolf opened his mouth wide and shouted and Granny jumped out.",      child: "Araz",      type: "narrative", pitch: 1.3,  rate: 1.0  },
-  { scene: "Happily ever after…",    text: "The wolf ran away and Little Red Riding Hood never saw the wolf again.", child: "Javid",     type: "narrative", pitch: 1.5,  rate: 1.0  },
+  { scene: "Once upon a time…",    text: "Little Red Riding Hood lived in a wood with her mother.",                child: "Omer",  type: "narrative", pitch: 1.4,  rate: 1.0  },
+  { scene: null,                   text: "One day Little Red Riding Hood went to visit her granny.",               child: "Araz",  type: "narrative", pitch: 1.2,  rate: 1.0  },
+  { scene: null,                   text: "She had a nice cake in her basket.",                                     child: "Javid", type: "narrative", pitch: 1.5,  rate: 1.1  },
+  { scene: null,                   text: "On her way Little Red Riding Hood met a wolf.",                          child: "Omer",  type: "narrative", pitch: 1.1,  rate: 0.95 },
+  { scene: "In the deep forest…",  text: "“Hello! Where are you going?”",                                child: "Araz",  type: "wolf",      pitch: 0.8,  rate: 0.9  },
+  { scene: null,                   text: "“I’m going to see my grandmother.”",                      child: "Amina", type: "lrrh",      pitch: 1.6,  rate: 1.05 },
+  { scene: null,                   text: "“She lives in a house behind those trees.”",                   child: "Ayan",  type: "lrrh",      pitch: 1.5,  rate: 1.0  },
+  { scene: "At Granny’s cottage…", text: "The wolf ran to Granny’s house and ate Granny up.",      child: "Javid", type: "narrative", pitch: 1.3,  rate: 1.0  },
+  { scene: null,                   text: "He got into Granny’s bed.",                                         child: "Omer",  type: "narrative", pitch: 1.4,  rate: 1.0  },
+  { scene: null,                   text: "A little later, Little Red Riding Hood reached the house.",              child: "Omer",  type: "narrative", pitch: 1.15, rate: 1.0  },
+  { scene: null,                   text: "She looked at the wolf.",                                                child: "Araz",  type: "narrative", pitch: 1.3,  rate: 1.0  },
+  { scene: "The big bad wolf…", text: "“Granny, what big eyes you have!”",                          child: "Amina", type: "lrrh",      pitch: 1.7,  rate: 1.1  },
+  { scene: null,                   text: "“All the better to see you with!” said the wolf.",             child: "Javid", type: "wolf",      pitch: 0.75, rate: 0.88 },
+  { scene: null,                   text: "“Granny, what big ears you have!”",                            child: "Ayan",  type: "lrrh",      pitch: 1.65, rate: 1.1  },
+  { scene: null,                   text: "“All the better to hear you with!” said the wolf.",            child: "Omer",  type: "wolf",      pitch: 0.75, rate: 0.88 },
+  { scene: null,                   text: "“Granny, what a big nose you have!”",                          child: "Amina", type: "lrrh",      pitch: 1.7,  rate: 1.0  },
+  { scene: null,                   text: "“All the better to smell you with!” said the wolf.",           child: "Araz",  type: "wolf",      pitch: 0.75, rate: 0.88 },
+  { scene: null,                   text: "“Granny, what big teeth you have!”",                           child: "Ayan",  type: "lrrh",      pitch: 1.6,  rate: 0.95 },
+  { scene: null,                   text: "“All the better to eat you with!” shouted the wolf.",          child: "Javid", type: "wolf",      pitch: 0.7,  rate: 0.85 },
+  { scene: "The rescue!",          text: "A woodcutter was in the wood.",                                          child: "Omer",  type: "narrative", pitch: 1.2,  rate: 1.05 },
+  { scene: null,                   text: "He heard a loud scream and ran to the house.",                           child: "Araz",  type: "narrative", pitch: 1.1,  rate: 1.0  },
+  { scene: null,                   text: "The woodcutter hit the wolf over the head.",                             child: "Javid", type: "narrative", pitch: 1.45, rate: 1.1  },
+  { scene: null,                   text: "The wolf opened his mouth wide and shouted and Granny jumped out.",      child: "Araz",  type: "narrative", pitch: 1.3,  rate: 1.0  },
+  { scene: "Happily ever after…", text: "The wolf ran away and Little Red Riding Hood never saw the wolf again.", child: "Javid", type: "narrative", pitch: 1.5, rate: 1.0 },
 ];
 
-/* One colour identity per child — consistent across every card */
 const CHILD_STYLES = {
-  Ayan:  { bg: 'linear-gradient(135deg,#ff6b9d,#c9184a)', border: '#ff6b9d' },
-  Omer:  { bg: 'linear-gradient(135deg,#48cae4,#1e6091)', border: '#48cae4' },
-  Araz:  { bg: 'linear-gradient(135deg,#ff9f43,#c0392b)', border: '#ff9f43' },
-  Javid: { bg: 'linear-gradient(135deg,#26de81,#0a6640)', border: '#26de81' },
-  Amina: { bg: 'linear-gradient(135deg,#c77dff,#6a0dad)', border: '#c77dff' },
+  Ayan:  { cc: '#d81b60', label: '#fff' },
+  Omer:  { cc: '#0057e7', label: '#fff' },
+  Araz:  { cc: '#e65100', label: '#fff' },
+  Javid: { cc: '#1b7e2e', label: '#fff' },
+  Amina: { cc: '#7b1fa2', label: '#fff' },
 };
 
-/* ── Build stars ── */
-(function buildStars() {
-  const el = document.getElementById('stars');
-  const count = 70;
-  for (let i = 0; i < count; i++) {
+/* ── Floating sparks ── */
+(function() {
+  const wrap   = document.getElementById('sparks');
+  const glyphs = ['✦','★','✶','✸','⬟','◆'];
+  const cols   = ['#e63946','#0057e7','#ffe100','#1b7e2e','#7b1fa2','#e65100'];
+  for (let i = 0; i < 22; i++) {
     const s = document.createElement('div');
-    s.className = 'star';
-    const size = Math.random() * 2.5 + 1;
+    s.className = 'spark';
+    s.textContent = glyphs[i % glyphs.length];
     s.style.cssText = [
-      `width:${size}px`,
-      `height:${size}px`,
-      `top:${Math.random() * 35}%`,
+      `top:${Math.random() * 90}%`,
       `left:${Math.random() * 100}%`,
-      `--dur:${(Math.random() * 2 + 1.5).toFixed(1)}s`,
-      `animation-delay:${(Math.random() * 3).toFixed(1)}s`,
+      `--sz:${(Math.random() * 1.2 + .7).toFixed(1)}rem`,
+      `--op:${(Math.random() * .3 + .15).toFixed(2)}`,
+      `--col:${cols[i % cols.length]}`,
+      `--dur:${(Math.random() * 8 + 6).toFixed(1)}s`,
+      `animation-delay:${(Math.random() * 8).toFixed(1)}s`,
     ].join(';');
-    el.appendChild(s);
+    wrap.appendChild(s);
   }
 })();
 
 /* ── Build story ── */
 const CARDS = [];
-(function buildStory() {
+(function() {
   const story = document.getElementById('story');
-
   SENTENCES.forEach((s, i) => {
     if (s.scene) {
       if (i > 0) {
-        const trees = document.createElement('div');
-        trees.className = 'trees';
-        trees.textContent = '🌲 🌳 🌲';
-        story.appendChild(trees);
+        const sep = document.createElement('div');
+        sep.className = 'strip-sep';
+        sep.innerHTML = '<span>★ ★ ★</span>';
+        story.appendChild(sep);
       }
-      const sceneEl = document.createElement('div');
-      sceneEl.className = 'scene';
-      sceneEl.textContent = s.scene;
-      story.appendChild(sceneEl);
+      const wrap = document.createElement('div');
+      wrap.className = 'scene-wrap';
+      const sc = document.createElement('div');
+      sc.className = 'scene';
+      sc.textContent = s.scene;
+      wrap.appendChild(sc);
+      story.appendChild(wrap);
     }
 
-    const cs   = CHILD_STYLES[s.child] || { bg: '#555', border: '#999' };
+    const cs   = CHILD_STYLES[s.child] || { cc: '#e63946', label: '#fff' };
     const card = document.createElement('div');
     card.className = 'card';
     card.dataset.idx = i;
-    card.style.background = cs.bg;
+    card.style.setProperty('--cc', cs.cc);
 
     card.innerHTML = `
-      <div class="btn"><span class="btn-icon">🔊</span></div>
+      <div class="btn"><span>🔊</span></div>
       <div class="text">${s.text}</div>
       <div class="badge">${s.child}</div>
     `;
-
     card.addEventListener('click', () => {
       if (card === currentCard) { togglePlayPause(); return; }
       playFrom(i);
@@ -632,62 +753,39 @@ const CARDS = [];
   });
 })();
 
-/* ── Playback state ── */
-let currentAudio = null;
-let currentCard  = null;
-let currentIdx   = -1;
-let isPlaying    = false;
-let isPaused     = false;
+/* ── Playback ── */
+let currentAudio = null, currentCard = null, currentIdx = -1;
+let isPlaying = false, isPaused = false;
 
 const avatar    = document.getElementById('avatar');
 const avatarImg = document.getElementById('avatarImg');
+let _seq = 0;
 
-let _avatarSeq = 0;
-function scrollThenAvatar(card, childName, borderColor) {
-  const seq = ++_avatarSeq;
+function scrollThenAvatar(card, child, color) {
+  const seq = ++_seq;
+  avatarImg.src = `photos/${child.toLowerCase()}.jpg`;
+  avatarImg.alt = child;
+  avatar.style.borderColor = color;
+  avatar.classList.remove('visible');
 
-  avatarImg.src = `photos/${childName.toLowerCase()}.jpg`;
-  avatarImg.alt = childName;
-  avatar.style.borderColor = borderColor;
-  avatar.classList.remove('visible'); // hide until scroll settles
-
-  // Center the card in the space above the player bar
   const barH  = document.getElementById('player-bar').offsetHeight || 72;
-  const availH = window.innerHeight - barH;
-  const cr     = card.getBoundingClientRect();
-  const targetY = Math.max(0, window.scrollY + cr.top - availH / 2 + cr.height / 2);
-  window.scrollTo({ top: targetY, behavior: 'smooth' });
+  const cr    = card.getBoundingClientRect();
+  window.scrollTo({ top: Math.max(0, window.scrollY + cr.top - (window.innerHeight - barH) / 2 + cr.height / 2), behavior: 'smooth' });
 
   const place = () => {
-    if (seq !== _avatarSeq) return; // superseded by a newer sentence
+    if (seq !== _seq) return;
     const r = card.getBoundingClientRect();
     avatar.style.top = `${r.top + r.height / 2 - 31}px`;
     avatar.classList.add('visible');
   };
-
-  // scrollend fires the moment the animation finishes (Chrome 114+, Firefox 109+, Safari iOS 17.4+)
-  if ('onscrollend' in window) {
-    window.addEventListener('scrollend', place, { once: true });
-  }
-  // Fallback: card was already centered (no scroll → no scrollend), or older browser
+  if ('onscrollend' in window) window.addEventListener('scrollend', place, { once: true });
   setTimeout(place, 500);
-}
-
-function stopAll() {
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  if (currentCard)  { currentCard.classList.remove('playing'); currentCard = null; }
-  currentIdx = -1;
-  isPlaying  = false;
-  isPaused   = false;
-  avatar.classList.remove('visible');
-  updateBar();
 }
 
 function playFrom(idx) {
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   if (currentCard)  { currentCard.classList.remove('playing'); currentCard = null; }
-  isPlaying = true;
-  isPaused  = false;
+  isPlaying = true; isPaused = false;
   playIndex(idx);
 }
 
@@ -695,73 +793,57 @@ function togglePlayPause() {
   if (isPlaying && currentAudio) {
     currentAudio.pause();
     if (currentCard) currentCard.classList.remove('playing');
-    isPlaying = false;
-    isPaused  = true;
-    updateBar();
+    isPlaying = false; isPaused = true; updateBar();
   } else if (isPaused && currentAudio) {
     if (currentCard) currentCard.classList.add('playing');
-    isPlaying = true;
-    isPaused  = false;
-    currentAudio.play();
-    updateBar();
+    isPlaying = true; isPaused = false;
+    currentAudio.play(); updateBar();
   }
 }
 
 function playIndex(idx) {
   if (idx >= SENTENCES.length || !isPlaying) {
-    isPlaying  = false;
-    isPaused   = false;
-    currentIdx = -1;
+    isPlaying = false; isPaused = false; currentIdx = -1;
     if (currentCard) { currentCard.classList.remove('playing'); currentCard = null; }
-    currentAudio = null;
-    avatar.classList.remove('visible');
-    updateBar();
-    return;
+    currentAudio = null; avatar.classList.remove('visible');
+    updateBar(); return;
   }
   currentIdx = idx;
-  const card     = CARDS[idx];
-  const sentence = SENTENCES[idx];
+  const card = CARDS[idx], s = SENTENCES[idx];
   if (currentCard && currentCard !== card) currentCard.classList.remove('playing');
   currentCard = card;
   card.classList.add('playing');
-  const cs = CHILD_STYLES[sentence.child];
-  scrollThenAvatar(card, sentence.child, (cs || {}).border || '#fff');
+  scrollThenAvatar(card, s.child, (CHILD_STYLES[s.child] || {}).cc || '#000');
+
   const audio = new Audio(`audio/sentence_${String(idx + 1).padStart(2, '0')}.mp3`);
   const advance = () => {
     if (audio !== currentAudio) return;
-    card.classList.remove('playing');
-    card.classList.add('played');
-    currentAudio = null;
-    currentCard  = null;
+    card.classList.remove('playing'); card.classList.add('played');
+    currentAudio = null; currentCard = null;
     if (isPlaying) playIndex(idx + 1);
   };
-  audio.onended = advance;
-  audio.onerror = advance;
-  audio.play();
-  currentAudio = audio;
-  updateBar();
+  audio.onended = advance; audio.onerror = advance;
+  audio.play(); currentAudio = audio; updateBar();
 }
 
 function updateBar() {
-  const idle      = document.getElementById('pb-idle');
-  const active    = document.getElementById('pb-active');
-  const pbChild   = document.getElementById('pb-child');
-  const pbNum     = document.getElementById('pb-num');
-  const pbText    = document.getElementById('pb-text');
-  const pbToggle  = document.getElementById('pb-toggle-btn');
+  const idle     = document.getElementById('pb-idle');
+  const active   = document.getElementById('pb-active');
+  const pbChild  = document.getElementById('pb-child');
+  const pbNum    = document.getElementById('pb-num');
+  const pbText   = document.getElementById('pb-text');
+  const pbToggle = document.getElementById('pb-toggle-btn');
   if ((isPlaying || isPaused) && currentIdx >= 0) {
-    idle.style.display   = 'none';
-    active.style.display = 'flex';
+    idle.style.display = 'none'; active.style.display = 'flex';
     const s = SENTENCES[currentIdx];
-    pbChild.textContent = s.child;
-    pbChild.style.color = (CHILD_STYLES[s.child] || {}).border || '#fff';
+    pbChild.textContent = s.child.toUpperCase();
+    pbChild.style.color = (CHILD_STYLES[s.child] || {}).cc || '#000';
     pbNum.textContent   = `${currentIdx + 1} / ${SENTENCES.length}`;
     const t = s.text;
     pbText.textContent  = t.length > 52 ? t.slice(0, 50) + '…' : t;
     pbToggle.innerHTML  = isPlaying ? '&#10074;&#10074;' : '&#9654;';
   } else {
-    idle.style.display   = 'flex';
-    active.style.display = 'none';
+    idle.style.display = 'flex'; active.style.display = 'none';
   }
 }
 
@@ -770,40 +852,33 @@ document.getElementById('pb-toggle-btn').addEventListener('click', togglePlayPau
 updateBar();
 
 /* ── Gallery ── */
-/*
-  Add your files to the gallery/ folder and list them here.
-  type: 'photo' | 'video'
-  caption is optional.
-*/
 const GALLERY_ITEMS = [
-  { type: 'photo', src: 'gallery/photo_01.jpg', caption: '' },
-  { type: 'photo', src: 'gallery/photo_02.jpg', caption: '' },
-  { type: 'photo', src: 'gallery/photo_03.jpg', caption: '' },
+  { type: 'photo', src: 'gallery/photo_01.jpg',  caption: '' },
+  { type: 'photo', src: 'gallery/photo_02.jpg',  caption: '' },
+  { type: 'photo', src: 'gallery/photo_03.jpg',  caption: '' },
   { type: 'photo', src: 'gallery/photo_001.jpg', caption: '' },
   { type: 'photo', src: 'gallery/photo_002.jpg', caption: '' },
   { type: 'photo', src: 'gallery/photo_003.jpg', caption: '' },
   { type: 'photo', src: 'gallery/photo_004.jpg', caption: '' },
   { type: 'photo', src: 'gallery/photo_005.jpg', caption: '' },
   { type: 'photo', src: 'gallery/photo_006.jpg', caption: '' },
-  { type: 'video', src: 'gallery/video_01.mp4', caption: '' },
-  { type: 'video', src: 'gallery/video_02.mp4', caption: '' },
-  { type: 'video', src: 'gallery/video_03.mp4', caption: '' },
-  // { type: 'video', src: 'gallery/video_02.mp4', caption: '' },
-  // { type: 'photo', src: 'gallery/photo_06.jpg', caption: '' },
+  { type: 'video', src: 'gallery/video_01.mp4',  caption: '' },
+  { type: 'video', src: 'gallery/video_02.mp4',  caption: '' },
+  { type: 'video', src: 'gallery/video_03.mp4',  caption: '' },
 ];
 
-(function buildGallery() {
+(function() {
   const grid    = document.getElementById('gallery-grid');
   const section = document.getElementById('gallery-section');
   if (!GALLERY_ITEMS.length) { section.style.display = 'none'; return; }
 
   GALLERY_ITEMS.forEach((item, i) => {
-    const el = document.createElement('div');
+    const el  = document.createElement('div');
     el.className = 'g-item';
     const cap = item.caption ? `<div class="g-caption">${item.caption}</div>` : '';
     if (item.type === 'video') {
       el.innerHTML = `<video src="${item.src}" muted playsinline preload="metadata" style="pointer-events:none"></video>
-        <div class="g-play">▶</div>${cap}`;
+        <div class="g-play"><div class="g-play-circle">&#9654;</div></div>${cap}`;
       const vid = el.querySelector('video');
       vid.addEventListener('loadedmetadata', () => { vid.currentTime = 0.001; });
     } else {
@@ -822,32 +897,24 @@ const lbVideo  = document.getElementById('lb-video');
 const lbCap    = document.getElementById('lb-caption');
 
 function openLightbox(i) {
-  lbIndex = i;
-  showLbItem();
+  lbIndex = i; showLbItem();
   lightbox.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-
 function closeLightbox() {
   lightbox.classList.remove('open');
   document.body.style.overflow = '';
-  lbVideo.pause();
-  lbVideo.src  = '';
-  lbMedia.src  = '';
+  lbVideo.pause(); lbVideo.src = ''; lbMedia.src = '';
 }
-
 function showLbItem() {
   const item = GALLERY_ITEMS[lbIndex];
   lbCap.textContent = item.caption || '';
   lbVideo.pause();
   if (item.type === 'video') {
-    lbMedia.style.display = 'none';
-    lbVideo.style.display = 'block';
-    lbVideo.src = item.src;
-    lbVideo.load();
+    lbMedia.style.display = 'none'; lbVideo.style.display = 'block';
+    lbVideo.src = item.src; lbVideo.load();
   } else {
-    lbVideo.style.display = 'none';
-    lbMedia.style.display = 'block';
+    lbVideo.style.display = 'none'; lbMedia.style.display = 'block';
     lbMedia.src = item.src;
   }
   document.getElementById('lb-prev').style.visibility = lbIndex > 0 ? 'visible' : 'hidden';
@@ -861,11 +928,9 @@ lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightb
 document.addEventListener('keydown', e => {
   if (!lightbox.classList.contains('open')) return;
   if (e.key === 'Escape') closeLightbox();
-  if (e.key === 'ArrowLeft'  && lbIndex > 0)                           { lbIndex--; showLbItem(); }
-  if (e.key === 'ArrowRight' && lbIndex < GALLERY_ITEMS.length - 1)    { lbIndex++; showLbItem(); }
+  if (e.key === 'ArrowLeft'  && lbIndex > 0)                        { lbIndex--; showLbItem(); }
+  if (e.key === 'ArrowRight' && lbIndex < GALLERY_ITEMS.length - 1) { lbIndex++; showLbItem(); }
 });
-
-
 </script>
 </body>
 </html>
