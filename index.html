@@ -411,7 +411,6 @@
       justify-content: center;
       font-size: 1.3rem;
       color: #000;
-      padding-left: 4px;
     }
     .g-caption {
       position: absolute;
@@ -954,7 +953,7 @@ const GALLERY_ITEMS = [
     const cap = item.caption ? `<div class="g-caption">${item.caption}</div>` : '';
     if (item.type === 'video') {
       el.innerHTML = `<video src="${item.src}" muted playsinline preload="metadata" style="pointer-events:none"></video>
-        <div class="g-play"><div class="g-play-circle">&#9654;</div></div>${cap}`;
+        <div class="g-play"><div class="g-play-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="6,3 21,12 6,21" fill="#000"/></svg></div></div>${cap}`;
       const vid = el.querySelector('video');
       vid.addEventListener('loadedmetadata', () => { vid.currentTime = 0.001; });
     } else {
