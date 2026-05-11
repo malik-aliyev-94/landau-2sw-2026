@@ -434,6 +434,8 @@
       border-radius: 8px;
       overflow: hidden;
       margin-bottom: 20px;
+      cursor: pointer;
+      background: #000;
     }
     .yt-wrap iframe {
       position: absolute;
@@ -442,6 +444,40 @@
       height: 100%;
       border: none;
       display: block;
+    }
+    .yt-thumb {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .yt-play-btn {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .yt-play-circle {
+      width: 72px;
+      height: 72px;
+      background: #ffe100;
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: #000;
+      padding-left: 6px;
+      transition: transform .1s, box-shadow .1s;
+    }
+    .yt-wrap:hover .yt-play-circle {
+      transform: scale(1.1);
+      box-shadow: 6px 6px 0 #000;
     }
 
     /* ── Lightbox ── */
@@ -644,8 +680,9 @@
     <p>The children who brought the story to life</p>
   </div>
   <div class="gallery-divider">★ ★ ★</div>
-  <div class="yt-wrap">
-    <iframe src="https://www.youtube.com/embed/dTgqSgS9r5g" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <div class="yt-wrap" id="yt-facade">
+    <img class="yt-thumb" src="https://img.youtube.com/vi/dTgqSgS9r5g/maxresdefault.jpg" alt="Video preview">
+    <div class="yt-play-btn"><div class="yt-play-circle">&#9654;</div></div>
   </div>
   <div id="gallery-grid"></div>
 </section>
@@ -873,6 +910,17 @@ function updateBar() {
 document.getElementById('pb-play-btn').addEventListener('click', () => playFrom(0));
 document.getElementById('pb-toggle-btn').addEventListener('click', togglePlayPause);
 updateBar();
+
+/* ── YouTube facade ── */
+document.getElementById('yt-facade').addEventListener('click', function() {
+  const iframe = document.createElement('iframe');
+  iframe.src = 'https://www.youtube.com/embed/dTgqSgS9r5g?autoplay=1';
+  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+  iframe.allowFullscreen = true;
+  this.innerHTML = '';
+  this.style.cursor = 'default';
+  this.appendChild(iframe);
+}, { once: true });
 
 /* ── Gallery ── */
 const GALLERY_ITEMS = [
